@@ -164,9 +164,19 @@ function loadCommands() {
 
 async function handleToolCall(functionCall, handlers) {
     const { name, args } = functionCall;
-    if ((name === 'read_file' || name === 'write_file') && args.filePath) {
+    if (name === 'read_file' && args.filePath) {
         if (!isInsideVault(args.filePath)) {
-            return { functionResponse: { name, response: { error: 'Cuma bisa baca/tulis di folder Second Brain vault aja ya' } } };
+            return { functionResponse: { name, response: { error: 'Cuma bisa baca di folder Second Brain vault aja ya' } } };
+        }
+    }
+    if (name === 'write_file' && args.filePath) {
+        if (!isInsideVault(args.filePath)) {
+            return { functionResponse: { name, response: { error: 'Cuma bisa nulis di folder Second Brain vault aja ya' } } };
+        }
+        const notesPath = path.resolve(path.join(SECOND_BRAIN_DIR, '02 - Human View', 'Notes'));
+        const resolved = path.isAbsolute(args.filePath) ? args.filePath : path.resolve(process.cwd(), args.filePath);
+        if (!resolved.startsWith(notesPath + path.sep) && resolved !== notesPath) {
+            return { functionResponse: { name, response: { error: 'Maaf, aku cuma bisa nulis catatan di folder Notes aja ya' } } };
         }
     }
     if (handlers[name]) {
@@ -207,15 +217,18 @@ CARA NGOMONG:
 KEMAMPUAN:
 Zocan bisa minta kamu buat:
 - execute_command: jalanin perintah terminal
-- read_file: baca file
-- write_file: tulis file
+- read_file: baca file — bisa baca file APAPUN di Second Brain (catatan, log, dll)
+- write_file: tulis file — CUMA BISA nulis di folder Notes aja!
 - search_web: cari info
 - fetch_webpage: baca halaman web
 
 Second Brain vault (ingatan) ada di: ${secondBrainPath}
-Kalo diminta baca project, catat sesuatu, atau nulis dokumentasi — tinggal baca/tulis file di folder itu. Folder ini adalah ingatanmu. Kamu cuma bisa baca/tulis di folder ini, bukan di luar.
+Kalo diminta baca project, catat sesuatu, atau baca dokumentasi — tinggal baca file di folder itu. Folder ini adalah ingatanmu. Kamu cuma bisa baca/tulis di folder ini, bukan di luar.
 
-CATATAN:
+PERATURAN NULIS:
+- KAMU CUMA BISA NULIS di folder "02 - Human View/Notes/". Kalo coba nulis di luar folder Notes bakal ditolak.
+- Kalo nulis catatan, pake nama file yang deskriptif pake bahasa Indonesia, contoh: "Cara Deploy Docker.md", "Error Fix Immich.md", "Catatan Server 2026-07-07.md"
+- Format file markdown (.md). Pake heading, list, dan kode blok kalo perlu.
 - Kalo Zocan minta nulis catatan, bikin file, atau nyimpen sesuatu — KAMU HARUS PANGGIL write_file. Jangan cuma bilang "udah" tapi gak beneran nulis. Kalo gak panggil tool, file-nya gak kebikin.
 - Kalo habis pake write_file, commit+push ke git udah otomatis dari kode. Gak usah nanya "mau di-commit?" — udah beres sendiri.
 
