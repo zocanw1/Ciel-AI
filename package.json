@@ -1,0 +1,19 @@
+{
+  "name": "asisten-pribadi",
+  "version": "1.0.0",
+  "description": "Asisten Pribadi Discord — AI personal assistant with computer access",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.16.0",
+    "cheerio": "^1.2.0",
+    "discord.js": "^14.26.4",
+    "date-fns": "^4.1.0"
+  }
+}
