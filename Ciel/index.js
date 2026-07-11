@@ -412,6 +412,18 @@ client.on('shardResume', (id, replayed) => {
     console.log(`Ciel tersambung lagi (replayed ${replayed} events)`);
 });
 
+// ── Button Interaction Handler ──
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
+    const { customId } = interaction;
+
+    // TikTok download buttons
+    if (customId.startsWith('tt_')) {
+        const ttInteraction = require('./handlers/tt_interaction');
+        await ttInteraction.handleInteraction(interaction, customId);
+    }
+});
+
 client.once('ready', () => {
     console.log('Ciel siap!');
     console.log(`Bot: ${client.user.tag}`);
