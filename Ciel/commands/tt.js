@@ -45,13 +45,14 @@ module.exports = {
         try {
             const data = await downloadVideo(url);
 
-            if (!data.data || (!data.data.play && !data.data.hdplay)) {
+            if (!data.data || (!data.data.play && !(data.data.hdplay && data.data.hdplay.length > 5))) {
                 if (statusMsg) await statusMsg.edit('Gagal download video. Coba link lain.').catch(() => null);
                 return { color: 0xE74C3C, title: 'Error', description: 'Gagal mengambil data video dari TikTok.' };
             }
 
-            const videoUrl = data.data.hdplay || data.data.play;
-            const isHD = !!data.data.hdplay;
+            const hasHD = data.data.hdplay && typeof data.data.hdplay === 'string' && data.data.hdplay.length > 5;
+            const videoUrl = hasHD ? data.data.hdplay : data.data.play;
+            const isHD = hasHD;
             const title = data.data.title || 'TikTok Video';
             const author = data.data.author?.unique_id || 'unknown';
             const videoId = Date.now();
