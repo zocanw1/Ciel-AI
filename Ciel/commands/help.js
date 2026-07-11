@@ -10,6 +10,7 @@ module.exports = {
                 + '`/info` — Statistik server (CPU, RAM, disk, uptime, PM2)\n'
                 + '`/pm2list` — Proses PM2 yang berjalan\n'
                 + '`/ramusage` — Penggunaan RAM server\n'
+                + '`/tt <link>` — Download video TikTok tanpa watermark\n'
                 + '\n'
                 + `**Monitor** — ${monitorUrl}`,
             footer: 'Ciel — Personal Assistant'

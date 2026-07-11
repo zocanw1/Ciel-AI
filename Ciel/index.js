@@ -252,7 +252,8 @@ client.on('messageCreate', async (message) => {
         const matched = commands.find(c => c.match(text));
         if (matched) {
             try {
-                const result = await matched.execute();
+                const result = await matched.execute(message);
+                if (result === null) return;
                 const embed = new EmbedBuilder()
                     .setColor(result.color || 0x5865F2)
                     .setTitle(result.title || '')
