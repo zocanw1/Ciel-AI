@@ -23,11 +23,16 @@ async function downloadVideo(url) {
 
 async function downloadFile(downloadUrl, filePath) {
     const resp = await axios.get(downloadUrl, {
-        responseType: 'arraybuffer',
+        responseType: 'stream',
         timeout: 120000,
         maxContentLength: 50 * 1024 * 1024
     });
-    fs.writeFileSync(filePath, resp.data);
+    const writer = fs.createWriteStream(filePath);
+    resp.data.pipe(writer);
+    return new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+    });
 }
 
 module.exports = {
