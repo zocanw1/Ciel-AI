@@ -45,12 +45,13 @@ module.exports = {
         try {
             const data = await downloadVideo(url);
 
-            if (!data.data || !data.data.play) {
+            if (!data.data || (!data.data.play && !data.data.hdplay)) {
                 if (statusMsg) await statusMsg.edit('Gagal download video. Coba link lain.').catch(() => null);
                 return { color: 0xE74C3C, title: 'Error', description: 'Gagal mengambil data video dari TikTok.' };
             }
 
-            const videoUrl = data.data.play;
+            const videoUrl = data.data.hdplay || data.data.play;
+            const isHD = !!data.data.hdplay;
             const title = data.data.title || 'TikTok Video';
             const author = data.data.author?.unique_id || 'unknown';
             const videoId = Date.now();
@@ -76,7 +77,7 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setColor(0x00F2EA)
                 .setTitle(title.substring(0, 256))
-                .setDescription(`By: **@${author}**\nSize: **${sizeMB}MB**`)
+                .setDescription(`By: **@${author}**\nSize: **${sizeMB}MB** | Quality: **${isHD ? 'HD' : 'SD'}**`)
                 .setFooter({ text: 'TikTok Download • Ciel' })
                 .setTimestamp();
 
