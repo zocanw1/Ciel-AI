@@ -1,7 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const { AttachmentBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
 const TIKWM_API = 'https://www.tikwm.com/api/';
 const TMP_DIR = path.join(__dirname, '../data/tmp');
@@ -22,13 +22,12 @@ async function downloadVideo(url) {
 }
 
 async function downloadFile(downloadUrl, filePath) {
-    const resp = await axios.get(downloadUrl, { responseType: 'stream', timeout: 60000 });
-    const writer = fs.createWriteStream(filePath);
-    resp.data.pipe(writer);
-    return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
+    const resp = await axios.get(downloadUrl, {
+        responseType: 'arraybuffer',
+        timeout: 120000,
+        maxContentLength: 50 * 1024 * 1024
     });
+    fs.writeFileSync(filePath, resp.data);
 }
 
 module.exports = {
@@ -43,6 +42,7 @@ module.exports = {
         const statusMsg = await message.channel.send('Mendownload video TikTok...').catch(() => null);
 
         try {
+            if (statusMsg) await statusMsg.edit('Mengambil data video...').catch(() => null);
             const data = await downloadVideo(url);
 
             if (!data.data || (!data.data.play && !(data.data.hdplay && data.data.hdplay.length > 5))) {
@@ -58,7 +58,7 @@ module.exports = {
             const videoId = Date.now();
             const filePath = path.join(TMP_DIR, `tt_${videoId}.mp4`);
 
-            if (statusMsg) await statusMsg.edit('Mengunduh file video...').catch(() => null);
+            if (statusMsg) await statusMsg.edit(`Mengunduh video... (${isHD ? 'HD' : 'SD'})`).catch(() => null);
 
             await downloadFile(videoUrl, filePath);
 
