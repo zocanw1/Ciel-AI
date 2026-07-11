@@ -24,8 +24,7 @@ async function downloadVideo(url) {
 async function downloadFile(downloadUrl, filePath) {
     const resp = await axios.get(downloadUrl, {
         responseType: 'stream',
-        timeout: 120000,
-        maxContentLength: 50 * 1024 * 1024
+        timeout: 120000
     });
     const writer = fs.createWriteStream(filePath);
     resp.data.pipe(writer);
