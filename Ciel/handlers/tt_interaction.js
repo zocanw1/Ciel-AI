@@ -63,9 +63,9 @@ async function handleInteraction(interaction, customId) {
             return interaction.reply({ content: 'Video sudah expired. Download ulang ya.', ephemeral: true }).catch(() => null);
         }
 
-        await interaction.deferUpdate().catch(() => null);
-
         if (action === 'discord') {
+            await interaction.deferUpdate().catch(() => null);
+
             const file = new AttachmentBuilder(pending.filePath, { name: `tiktok_${videoId}.mp4` });
             const quality = pending.videoData.width > 0 ? `${pending.videoData.width}x${pending.videoData.height}` : 'Unknown';
             const sizeMB = (fs.statSync(pending.filePath).size / 1024 / 1024).toFixed(1);
@@ -82,10 +82,19 @@ async function handleInteraction(interaction, customId) {
 
         } else if (action === 'immich') {
             if (!IMMICH_API_KEY) {
-                return interaction.editReply({ content: 'IMMICH_API_KEY belum diset di .env Ciel.' }).catch(() => null);
+                return interaction.reply({ content: 'IMMICH_API_KEY belum diset.', ephemeral: true }).catch(() => null);
             }
 
-            await interaction.editReply({ content: 'Mengupload ke Immich...' }).catch(() => null);
+            // Show loading on original message
+            const loadingEmbed = new EmbedBuilder()
+                .setColor(0xF39C12)
+                .setTitle(pending.videoData.title.substring(0, 256))
+                .setDescription(`By: **@${pending.videoData.author}**\n\nMengupload ke Immich...`)
+                .setFooter({ text: 'TikTok → Immich • Ciel' })
+                .setTimestamp();
+
+            await interaction.message.edit({ embeds: [loadingEmbed], components: [] }).catch(() => null);
+            await interaction.deferUpdate().catch(() => null);
 
             const result = await uploadToImmich(pending.filePath, pending.videoData);
 
