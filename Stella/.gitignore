@@ -1,0 +1,18 @@
+.env
+node_modules/
+*.log
+logs/
+local_audio/
+local_images/
+downloads/
+
+# Runtime data (privasi percakapan user)
+database.json
+memory_bank.json
+reminders.json
+settings.json
+StellaBrain_*.md
+bot_logs.txt
+stella_runtime.*.log
+Memory/
+discord_data/
