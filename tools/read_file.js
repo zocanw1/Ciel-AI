@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = {
     name: "read_file",
-    description: "Membaca isi teks dari file di Second Brain (bisa baca folder mana aja).",
+    description: "Membaca isi teks dari sebuah file.",
     parameters: {
         type: "OBJECT",
         properties: {

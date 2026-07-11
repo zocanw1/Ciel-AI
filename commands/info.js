@@ -1,5 +1,6 @@
 const { exec } = require('child_process');
 const { format } = require('date-fns');
+const { formatUptime, progressBar, fmtMB } = require('../core/utils');
 
 module.exports = {
     match: (text) => text.startsWith('/info'),
@@ -174,30 +175,6 @@ function getOsInfo() {
             });
         });
     });
-}
-
-function progressBar(percent) {
-    const filled = Math.round((parseFloat(percent) / 100) * 10);
-    const empty = 10 - filled;
-    return '█'.repeat(filled) + '░'.repeat(empty);
-}
-
-function fmtMB(mb) {
-    if (mb >= 1024) return (mb / 1024).toFixed(1) + ' GB';
-    return mb + ' MB';
-}
-
-function formatUptime(ms) {
-    const sec = Math.floor(ms / 1000);
-    const min = Math.floor(sec / 60);
-    const hour = Math.floor(min / 60);
-    const day = Math.floor(hour / 24);
-    const parts = [];
-    if (day > 0) parts.push(`${day}h`);
-    if (hour % 24 > 0) parts.push(`${hour % 24}j`);
-    if (min % 60 > 0) parts.push(`${min % 60}m`);
-    if (sec % 60 > 0 && parts.length < 2) parts.push(`${sec % 60}d`);
-    return parts.join(' ') || '0d';
 }
 
 function fallback(type) {

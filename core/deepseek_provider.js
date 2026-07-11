@@ -1,16 +1,5 @@
 const axios = require('axios');
-
-function normalizeSchema(schema = {}) {
-    const normalized = { ...schema };
-    if (normalized.type) normalized.type = String(normalized.type).toLowerCase();
-    if (normalized.properties) {
-        normalized.properties = Object.fromEntries(
-            Object.entries(normalized.properties).map(([name, value]) => [name, normalizeSchema(value)])
-        );
-    }
-    if (normalized.items) normalized.items = normalizeSchema(normalized.items);
-    return normalized;
-}
+const { normalizeSchema } = require('./utils');
 
 function toDeepSeekTools(declarations = []) {
     return declarations.map((d) => ({

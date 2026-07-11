@@ -1,4 +1,5 @@
 const { exec } = require('child_process');
+const { progressBar, fmtMB } = require('../core/utils');
 
 module.exports = {
     match: (text) => text.startsWith('/ramusage'),
@@ -57,15 +58,3 @@ module.exports = {
         });
     }
 };
-
-function progressBar(percent) {
-    const filled = Math.round((parseFloat(percent) / 100) * 10);
-    const empty = 10 - filled;
-    return '█'.repeat(filled) + '░'.repeat(empty);
-}
-
-function fmtMB(mb) {
-    const val = parseInt(mb);
-    if (val >= 1024) return (val / 1024).toFixed(1) + ' GB';
-    return val + ' MB';
-}

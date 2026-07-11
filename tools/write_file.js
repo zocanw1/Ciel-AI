@@ -3,11 +3,11 @@ const path = require('path');
 
 module.exports = {
     name: "write_file",
-    description: "Membuat file baru atau menimpa file yang sudah ada. CUMA BISA nulis di folder Notes (second-brain/Second Brain/02 - Human View/Notes/).",
+    description: "Membuat file baru atau menimpa file yang sudah ada.",
     parameters: {
         type: "OBJECT",
         properties: {
-            filePath: { type: "STRING", description: "Path file tujuan. Contoh: second-brain/Second Brain/02 - Human View/Notes/Nama Catatan.md" },
+            filePath: { type: "STRING", description: "Path file tujuan" },
             content: { type: "STRING", description: "Isi konten file" }
         },
         required: ["filePath", "content"]
