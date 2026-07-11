@@ -7,7 +7,6 @@ const TMP_DIR = path.join(__dirname, '../data/tmp');
 const IMMICH_URL = process.env.IMMICH_URL || 'http://192.168.1.10:2283';
 const IMMICH_API_KEY = process.env.IMMICH_API_KEY;
 
-// In-memory store for pending downloads: videoId -> { filePath, videoData, source }
 const pendingDownloads = new Map();
 
 function storePending(videoId, data) {
@@ -46,9 +45,7 @@ async function uploadToImmich(filePath, videoData) {
     formData.append('filename', filename);
 
     const resp = await axios.post(`${IMMICH_URL}/api/assets`, formData, {
-        headers: {
-            'x-api-key': IMMICH_API_KEY,
-        },
+        headers: { 'x-api-key': IMMICH_API_KEY },
         timeout: 120000,
     });
 
@@ -56,18 +53,18 @@ async function uploadToImmich(filePath, videoData) {
 }
 
 async function handleInteraction(interaction, customId) {
-    const parts = customId.split('_');
-    const action = parts[1];
-    const videoId = parts.slice(2).join('_');
-
-    const pending = getPending(videoId);
-    if (!pending) {
-        return interaction.reply({ content: 'Video sudah expired. Download ulang ya.', ephemeral: true });
-    }
-
-    await interaction.deferUpdate();
-
     try {
+        const parts = customId.split('_');
+        const action = parts[1];
+        const videoId = parts.slice(2).join('_');
+
+        const pending = getPending(videoId);
+        if (!pending) {
+            return interaction.reply({ content: 'Video sudah expired. Download ulang ya.', ephemeral: true }).catch(() => null);
+        }
+
+        await interaction.deferUpdate().catch(() => null);
+
         if (action === 'discord') {
             const file = new AttachmentBuilder(pending.filePath, { name: `tiktok_${videoId}.mp4` });
             const quality = pending.videoData.width > 0 ? `${pending.videoData.width}x${pending.videoData.height}` : 'Unknown';
@@ -80,15 +77,15 @@ async function handleInteraction(interaction, customId) {
                 .setFooter({ text: 'TikTok Download • Ciel' })
                 .setTimestamp();
 
-            await interaction.message.edit({ embeds: [embed], files: [file], components: [] });
+            await interaction.message.edit({ embeds: [embed], files: [file], components: [] }).catch(() => null);
             deletePending(videoId);
 
         } else if (action === 'immich') {
             if (!IMMICH_API_KEY) {
-                return interaction.editReply({ content: 'IMMICH_API_KEY belum diset di .env Ciel.' });
+                return interaction.editReply({ content: 'IMMICH_API_KEY belum diset di .env Ciel.' }).catch(() => null);
             }
 
-            await interaction.editReply({ content: 'Mengupload ke Immich...' });
+            await interaction.editReply({ content: 'Mengupload ke Immich...' }).catch(() => null);
 
             const result = await uploadToImmich(pending.filePath, pending.videoData);
 
@@ -99,14 +96,13 @@ async function handleInteraction(interaction, customId) {
                 .setFooter({ text: 'TikTok → Immich • Ciel' })
                 .setTimestamp();
 
-            await interaction.message.edit({ embeds: [embed], components: [] });
+            await interaction.message.edit({ embeds: [embed], components: [] }).catch(() => null);
             deletePending(videoId);
         }
 
     } catch (err) {
         console.error('[TT Interaction] Error:', err.message);
-        await interaction.editReply({ content: 'Error: ' + err.message }).catch(() => null);
-        deletePending(videoId);
+        deletePending(customId.split('_').slice(2).join('_'));
     }
 }
 
