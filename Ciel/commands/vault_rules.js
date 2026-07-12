@@ -37,7 +37,7 @@ module.exports = {
                 return { color: 0xF1C40F, title: 'Log Vault', description: 'Belum ada log.' };
             }
             const lines = logs.map(l =>
-                `**${l.app}** | ${l.approved ? '✅' : '❌'} ${l.reason}`
+                `**${l.app}** (${l.deviceId || '?'}) | ${l.approved ? '✅' : '❌'} ${l.reason}`
             );
             return { color: 0x5865F2, title: 'Log Vault (5 terakhir)', description: lines.join('\n') };
         }

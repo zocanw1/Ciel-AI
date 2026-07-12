@@ -17,17 +17,18 @@ router.use(express.json());
 router.use(authMiddleware);
 
 // POST /api/vault/request-access
-// Body: { "app": "m-banking", "device": "Pixel 7" }
+// Body: { "app": "m-banking", "deviceId": "hp_utama", "timestamp": 1783847373 }
 router.post('/request-access', (req, res) => {
-    const { app, device } = req.body;
+    const { app, deviceId, timestamp } = req.body;
     if (!app) {
         return res.json({ success: false, message: 'Parameter "app" diperlukan.' });
     }
 
-    const result = evaluateAccess(app, device || 'unknown');
+    const result = evaluateAccess(app, deviceId || 'unknown');
     res.json({
         success: true,
         approved: result.approved,
+        reason: result.reason,
         message: result.message,
         remaining: result.remaining,
     });
