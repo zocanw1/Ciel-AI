@@ -9,8 +9,8 @@ const DAY_NAMES = {
 module.exports = {
     match: (text) => text.startsWith('/vault-rules'),
 
-    execute: async (message) => {
-        const args = message.content.replace(/^\/vault-rules\s*/i, '').trim();
+    execute: async (message, text) => {
+        const args = text.replace(/^\/vault-rules\s*/i, '').trim();
 
         if (args.startsWith('set ')) {
             const jsonStr = args.slice(4).trim();
