@@ -1,17 +1,56 @@
 const express = require('express');
 const { evaluateAccess } = require('./vault_engine');
 const { getLogs } = require('./vault_store');
+const { EmbedBuilder } = require('discord.js');
 
 const VAULT_API_KEY = process.env.VAULT_API_KEY;
-const NOTIFY_CHANNEL_ID = '1523012586772369589';
+const NOTIFY_CHANNEL_ID = '1525809447421607966';
 let discordClient = null;
+
+const REASON_LABELS = {
+    approved: 'Akses disetujui',
+    blocked_day: 'Hari tidak diizinkan',
+    blocked_hour: 'Di luar jam akses',
+    daily_quota: 'Kuota harian habis',
+};
+
+function fmtTime() {
+    const d = new Date();
+    const wib = new Date(d.getTime() + 7 * 3600000);
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const day = days[wib.getUTCDay()];
+    const hh = String(wib.getUTCHours()).padStart(2, '0');
+    const mm = String(wib.getUTCMinutes()).padStart(2, '0');
+    const dd = String(wib.getUTCDate()).padStart(2, '0');
+    const MM = String(wib.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = wib.getUTCFullYear();
+    return `${day}, ${dd}/${MM}/${yyyy} ${hh}:${mm} WIB`;
+}
 
 async function notifyDiscord(app, deviceId, approved, reason) {
     if (!discordClient) return;
     try {
         const channel = await discordClient.channels.fetch(NOTIFY_CHANNEL_ID);
         if (!channel) return;
-        await channel.send(`${approved ? '✅' : '❌'} **${app}** (${deviceId}) — ${approved ? 'DISETUJUI' : 'DITOLAK'} (${reason})`);
+
+        const color = approved ? 0x2ECC71 : 0xE74C3C;
+        const statusIcon = approved ? '✅' : '❌';
+        const statusLabel = approved ? 'DISETUJUI' : 'DITOLAK';
+        const reasonLabel = REASON_LABELS[reason] || reason;
+
+        const embed = new EmbedBuilder()
+            .setColor(color)
+            .setTitle(`${statusIcon} Akses Vault — ${statusLabel}`)
+            .setDescription(`**${app}** meminta akses vault`)
+            .addFields(
+                { name: 'Perangkat', value: deviceId, inline: true },
+                { name: 'Status', value: `\`${statusLabel}\``, inline: true },
+                { name: 'Alasan', value: reasonLabel, inline: false },
+                { name: 'Waktu', value: fmtTime(), inline: false }
+            )
+            .setTimestamp();
+
+        await channel.send({ embeds: [embed] });
     } catch (e) {
         console.error('[Vault] Notifikasi Discord error:', e.message);
     }
