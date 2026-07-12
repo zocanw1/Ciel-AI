@@ -19,9 +19,9 @@ router.use(authMiddleware);
 // POST /api/vault/request-access
 // Body: { "app": "m-banking", "deviceId": "hp_utama", "timestamp": 1783847373 }
 router.post('/request-access', (req, res) => {
-    const { app, deviceId, timestamp } = req.body;
+    const { app, deviceId } = req.body || {};
     if (!app) {
-        return res.json({ success: false, message: 'Parameter "app" diperlukan.' });
+        return res.status(400).json({ success: false, message: 'Parameter "app" diperlukan.' });
     }
 
     const result = evaluateAccess(app, deviceId || 'unknown');
