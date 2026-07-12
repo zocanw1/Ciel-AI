@@ -57,7 +57,7 @@ function simpleAuth(req, res, next) {
     next();
 }
 
-v1router.all('/check', simpleAuth, (req, res) => {
+v1router.all('/vault/check', simpleAuth, (req, res) => {
     const app = req.body?.app || req.query.app;
     const deviceId = req.body?.deviceId || req.query.deviceId || 'unknown';
     if (!app) {
