@@ -123,8 +123,6 @@ function startVaultAPI(port, client) {
     });
 
     const app = express();
-    app.use('/api/vault', router);
-    app.use('/api/v1', v1router);
 
     app.get('/api/vault/macro', (req, res) => {
         const macroPath = path.join(__dirname, '../data/vault_macro.json');
@@ -136,6 +134,9 @@ function startVaultAPI(port, client) {
             res.status(404).json({ success: false, message: 'Macro file not found.' });
         }
     });
+
+    app.use('/api/vault', router);
+    app.use('/api/v1', v1router);
 
     app.use((req, res) => {
         const isV1 = req.path.startsWith('/api/v1');
