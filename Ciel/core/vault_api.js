@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const { evaluateAccess } = require('./vault_engine');
 const { getLogs } = require('./vault_store');
 const { EmbedBuilder } = require('discord.js');
@@ -103,6 +105,17 @@ function startVaultAPI(port, client) {
 
     router.get('/health', (req, res) => {
         res.json({ success: true, status: 'ok', service: 'Ciel Vault API' });
+    });
+
+    router.get('/macro', (req, res) => {
+        const macroPath = path.join(__dirname, '../data/vault_macro.json');
+        if (fs.existsSync(macroPath)) {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', 'attachment; filename="Vault Cek m-Banking.macro"');
+            res.sendFile(macroPath);
+        } else {
+            res.status(404).json({ success: false, message: 'Macro file not found.' });
+        }
     });
 
     const v1router = express.Router();
