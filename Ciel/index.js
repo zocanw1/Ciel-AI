@@ -440,4 +440,4 @@ client.once('ready', () => {
 client.login(DISCORD_TOKEN);
 
 // ── Start HTTP API ──
-startVaultAPI(VAULT_PORT);
+startVaultAPI(VAULT_PORT, client);
