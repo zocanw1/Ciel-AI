@@ -7,9 +7,11 @@ const COUNTER_FILE = path.join(DATA_DIR, 'vault_counter.json');
 const LOG_FILE = path.join(DATA_DIR, 'vault_log.json');
 
 const DEFAULT_RULES = {
-    allowedDays: ['saturday', 'sunday'],
-    allowedHours: { start: 6, end: 20 },
-    dailyQuota: 2,
+    rules: [
+        { type: 'day', value: ['saturday', 'sunday'] },
+        { type: 'time', start: '06:00', end: '20:00' },
+        { type: 'quota', limit: 2 },
+    ],
 };
 
 let rulesCache = null;
@@ -17,17 +19,34 @@ let counterCache = null;
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
+function migrateRules(data) {
+    if (data.rules) { rulesCache = data; return; }
+    const migrated = { rules: [] };
+    if (data.allowedDays) migrated.rules.push({ type: 'day', value: data.allowedDays });
+    if (data.allowedHours) {
+        migrated.rules.push({
+            type: 'time',
+            start: `${String(data.allowedHours.start).padStart(2, '0')}:00`,
+            end: `${String(data.allowedHours.end).padStart(2, '0')}:00`,
+        });
+    }
+    if (data.dailyQuota) migrated.rules.push({ type: 'quota', limit: data.dailyQuota });
+    rulesCache = migrated;
+    saveRules();
+}
+
 function loadRules() {
     if (rulesCache) return rulesCache;
     try {
         if (fs.existsSync(RULES_FILE)) {
-            rulesCache = JSON.parse(fs.readFileSync(RULES_FILE, 'utf-8'));
+            const raw = JSON.parse(fs.readFileSync(RULES_FILE, 'utf-8'));
+            migrateRules(raw);
             return rulesCache;
         }
     } catch (e) {
         console.error('[Vault] Rules load error:', e.message);
     }
-    rulesCache = { ...DEFAULT_RULES };
+    rulesCache = { rules: [...DEFAULT_RULES.rules.map(r => ({ ...r }))] };
     saveRules();
     return rulesCache;
 }
@@ -41,16 +60,14 @@ function saveRules() {
 }
 
 function updateRules(newRules) {
-    const current = loadRules();
-    if (newRules.allowedDays) current.allowedDays = newRules.allowedDays;
-    if (newRules.allowedHours) {
-        if (newRules.allowedHours.start !== undefined) current.allowedHours.start = newRules.allowedHours.start;
-        if (newRules.allowedHours.end !== undefined) current.allowedHours.end = newRules.allowedHours.end;
+    loadRules();
+    if (Array.isArray(newRules.rules)) {
+        rulesCache = { rules: newRules.rules.map(r => ({ ...r })) };
+    } else {
+        return rulesCache;
     }
-    if (newRules.dailyQuota !== undefined) current.dailyQuota = newRules.dailyQuota;
-    rulesCache = current;
     saveRules();
-    return current;
+    return rulesCache;
 }
 
 function getTodayKey() {

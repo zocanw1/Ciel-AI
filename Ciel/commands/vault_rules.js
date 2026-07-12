@@ -26,7 +26,7 @@ module.exports = {
                 return {
                     color: 0xE74C3C,
                     title: 'Error',
-                    description: 'Format JSON salah. Contoh: `set { "dailyQuota": 3 }`',
+                    description: 'Format JSON salah. Contoh: `set { "rules": [{"type":"quota","limit":3}] }`',
                 };
             }
         }
@@ -42,22 +42,31 @@ module.exports = {
             return { color: 0x5865F2, title: 'Log Vault (5 terakhir)', description: lines.join('\n') };
         }
 
-        // Default: show current rules
         const rules = loadRules();
         const count = getDailyCount();
         return {
             color: 0x5865F2,
             title: 'Vault Rules',
-            description: formatRules(rules) + `\n\nAkses hari ini: **${count}/${rules.dailyQuota}**`,
+            description: formatRules(rules) + `\n\nAkses hari ini: **${count}**`,
         };
     }
 };
 
 function formatRules(rules) {
-    const days = rules.allowedDays.map(d => DAY_NAMES[d] || d).join(', ');
-    return [
-        `**Hari**: ${days}`,
-        `**Jam**: ${rules.allowedHours.start}:00 — ${rules.allowedHours.end}:00`,
-        `**Kuota harian**: ${rules.dailyQuota}x`,
-    ].join('\n');
+    return rules.rules.map(r => formatRule(r)).join('\n');
+}
+
+function formatRule(rule) {
+    switch (rule.type) {
+        case 'day': {
+            const days = rule.value.map(d => DAY_NAMES[d] || d).join(', ');
+            return `**Hari**: ${days}`;
+        }
+        case 'time':
+            return `**Jam**: ${rule.start} — ${rule.end}`;
+        case 'quota':
+            return `**Kuota harian**: ${rule.limit}x`;
+        default:
+            return `**${rule.type}**: ${JSON.stringify(rule)}`;
+    }
 }
