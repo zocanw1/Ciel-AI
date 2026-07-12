@@ -125,7 +125,7 @@ function startVaultAPI(port, client) {
     const app = express();
 
     app.get('/api/vault/macro', (req, res) => {
-        const macroPath = path.join(__dirname, '../data/vault_macro.json');
+        const macroPath = path.join(__dirname, '../vault_macro.json');
         if (fs.existsSync(macroPath)) {
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Content-Disposition', 'attachment; filename="Vault Cek m-Banking.macro"');

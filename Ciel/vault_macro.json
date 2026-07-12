@@ -1,0 +1,72 @@
+{
+  "m_name": "Vault Cek m-Banking",
+  "m_enabled": true,
+  "m_completed": true,
+  "m_GUID": 0,
+  "aiGenerated": 1,
+  "m_description": "Cek vault via Tailscale, kalau OK buka m-Banking, kalau NO toast.",
+  "localVariables": [
+    {
+      "m_name": "va_respon",
+      "m_type": 2,
+      "m_stringValue": "",
+      "isLocalVar": true
+    }
+  ],
+  "m_triggerList": [
+    {
+      "m_classType": "QuickSettingsTileTrigger",
+      "m_SIGUID": 0
+    }
+  ],
+  "m_actionList": [
+    {
+      "m_classType": "HttpRequestAction",
+      "m_SIGUID": 0,
+      "m_url": "http://100.98.201.91:4000/api/v1/vault/check?app=m-banking&deviceId=PocoX3Pro&key=ciel-vault-key-zocan",
+      "m_method": 0,
+      "m_timeout": 15,
+      "m_retryCount": 0,
+      "m_trustAnyCert": false,
+      "m_storeResponseBody": true,
+      "m_varToStoreBody": "va_respon"
+    },
+    {
+      "m_classType": "IfConditionAction",
+      "m_SIGUID": 0,
+      "m_constraintList": [
+        {
+          "m_classType": "MacroDroidVariableConstraint",
+          "m_SIGUID": 0,
+          "m_variableName": "va_respon",
+          "m_option": 0,
+          "m_compareString": "OK"
+        }
+      ]
+    },
+    {
+      "m_classType": "LaunchActivityAction",
+      "m_SIGUID": 0,
+      "m_comment": "PILIH APLIKASI m-Banking di sini",
+      "m_appName": "m-Banking",
+      "m_packageName": "",
+      "m_activityName": ""
+    },
+    {
+      "m_classType": "ElseAction",
+      "m_SIGUID": 0
+    },
+    {
+      "m_classType": "NotificationAction",
+      "m_SIGUID": 0,
+      "m_title": "Vault Ditolak",
+      "m_content": "Akses vault ditolak. Cek /vault-rules log",
+      "m_toastStyle": 1,
+      "m_priority": 0
+    },
+    {
+      "m_classType": "EndIfAction",
+      "m_SIGUID": 0
+    }
+  ]
+}
