@@ -225,6 +225,10 @@ INGATAN CHANNEL INI:
 ${getMemoryText(channelId)}`;
 }
 
+// ── Vault API Server ──
+const { startVaultAPI } = require('./core/vault_api');
+const VAULT_PORT = parseInt(process.env.VAULT_PORT) || 4000;
+
 // ── Discord Client ──
 const client = new Client({
     intents: [
@@ -434,3 +438,6 @@ client.once('ready', () => {
 });
 
 client.login(DISCORD_TOKEN);
+
+// ── Start HTTP API ──
+startVaultAPI(VAULT_PORT);

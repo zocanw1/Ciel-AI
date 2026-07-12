@@ -10,7 +10,9 @@ module.exports = {
                 + '`/info` — Statistik server (CPU, RAM, disk, uptime, PM2)\n'
                 + '`/pm2list` — Proses PM2 yang berjalan\n'
                 + '`/ramusage` — Penggunaan RAM server\n'
-                + '`/tt <link>` — Download video TikTok tanpa watermark\n'
+                +                 '`/tt <link>` — Download video TikTok tanpa watermark\n'
+                + '`/vault-rules` — Lihat/ubah rules Vault\n'
+                + '`/vault-rules log` — Log akses vault terakhir\n'
                 + '\n'
                 + `**Monitor** — ${monitorUrl}`,
             footer: 'Ciel — Personal Assistant'
